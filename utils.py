@@ -7,7 +7,7 @@ class Utils:
     def __init__(
             self,
             sock=socket.socket(socket.AF_INET, socket.SOCK_STREAM),
-            address=("176.52.113.187", 8000),
+            address=("0.0.0.0", 5006),
             BUFFER_SIZE=4096,
             lock=threading.Lock(),
     ):

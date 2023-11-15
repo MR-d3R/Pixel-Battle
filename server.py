@@ -17,10 +17,6 @@ class Server(Utils):
             print("BIND ADDRESS")
             self.sock.bind(self.address)
 
-            # size = 60
-            # matrixUpdate = Thread(target=self.update_matrix, daemon=True)
-            # matrixUpdate.start()
-
             print("LISTENING")
             self.sock.listen(100)
             print(self.address)
@@ -83,9 +79,6 @@ class ClientHandler(Thread, Utils):
 
                 Server().matrix[x][y] = color
                 server.update_matrix()
-
-                # self.sock.send(str(res).encode("UTF-8"))
-                # sleep(1)
 
             except (ConnectionResetError, ConnectionAbortedError, EOFError):
                 print(f"DISCONNECT: client {self.addr} has disconnected")

@@ -3,9 +3,10 @@ from threading import Thread
 from PyQt6 import QtWidgets, QtGui, QtCore
 from PyQt6.QtCore import pyqtSignal, pyqtSlot
 from PyQt6.QtWidgets import QApplication, QMainWindow, QWidget, QPushButton, QGridLayout
+import utils
 
 
-class MyWindow(QMainWindow, QWidget):
+class MyWindow(QMainWindow, QWidget, utils.Utils):
     signal = pyqtSignal(str)
     colorChanged = pyqtSignal(object)
 
