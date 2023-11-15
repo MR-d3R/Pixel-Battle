@@ -1,17 +1,27 @@
 import pickle, sys
-from threading import Thread
+import socket
+from threading import Thread, Lock
 from PyQt6 import QtWidgets, QtGui, QtCore
 from PyQt6.QtCore import pyqtSignal, pyqtSlot
 from PyQt6.QtWidgets import QApplication, QMainWindow, QWidget, QPushButton, QGridLayout
-import utils
 
 
-class MyWindow(QMainWindow, QWidget, utils.Utils):
+class MyWindow(QMainWindow, QWidget):
     signal = pyqtSignal(str)
     colorChanged = pyqtSignal(object)
 
-    def __init__(self):
+    def __init__(
+            self,
+            sock=socket.socket(socket.AF_INET, socket.SOCK_STREAM),
+            address=("26.222.82.150", 5006),
+            BUFFER_SIZE=4096,
+            lock=Lock(),
+    ):
         super().__init__()
+        self.sock = sock
+        self.address = address
+        self.BUFFER_SIZE = BUFFER_SIZE
+        self.lock = lock
         self.stop_call = False
         self._color = None
         self.DURATION_INT = 10
