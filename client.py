@@ -1,15 +1,11 @@
-import utils
 import pickle, sys
 from threading import Thread
-from time import sleep
-import numpy as np
 from PyQt6 import QtWidgets, QtGui, QtCore
-from PyQt6.QtGui import QKeyEvent
-from PyQt6.QtCore import Qt, pyqtSignal, pyqtSlot
-from PyQt6.QtWidgets import QApplication, QMainWindow, QWidget, QPushButton, QGridLayout, QSpacerItem
+from PyQt6.QtCore import pyqtSignal, pyqtSlot
+from PyQt6.QtWidgets import QApplication, QMainWindow, QWidget, QPushButton, QGridLayout
 
 
-class MyWindow(QMainWindow, QWidget, utils.Utils):
+class MyWindow(QMainWindow, QWidget):
     signal = pyqtSignal(str)
     colorChanged = pyqtSignal(object)
 
