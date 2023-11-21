@@ -7,10 +7,11 @@ from utils import Utils
 
 class Server(Utils):
 
-    def __init__(self, clients=[], matrix=[[None] * 60 for _ in range(60)]):
+    def __init__(self, clients=[], matrix=None):
         super().__init__()
         self.clients = clients
-        self.matrix = matrix
+        size = 60
+        self.matrix = [[None] * size for _ in range(size)]
 
     def run(self):
         try:
@@ -23,16 +24,16 @@ class Server(Utils):
 
             while True:
                 conn, addr = self.sock.accept()
-                client = ClientHandler(conn, addr, self.BUFFER_SIZE, Server())
+                client = ClientHandler(conn, addr, self.BUFFER_SIZE, self)
                 client.start()
 
                 self.clients.append(client)
                 print("NEW CLIENT", client, "\n")
-                self.send_matrix(addr)
+                self.send_matrix(conn)
                 self.list_all_clients()
 
         except Exception as e:
-            print(e)
+            print("line 35: ", e)
             self.sock.close()
             return
 
@@ -41,9 +42,10 @@ class Server(Utils):
         for client in self.clients:
             print(client)
 
-    def remove_client(clients, client):
+    def remove_client(self, clients, client):
         clients.remove(client)
 
+    '''
     def broadcast(self, message, sender):
         timestamp = time.strftime("%H:%M:%S")
         for cl in self.clients:
@@ -51,12 +53,13 @@ class Server(Utils):
             message_with_timestamp = f"\n[{timestamp}] ({sender}) : {message}"
             cl.sock.send(message_with_timestamp.encode("UTF-8"))
             print(f"SERVER: message '{message}' sent to {cl}")
+    '''
 
-    def send_matrix(self, addr):
+    def send_matrix(self, conn):
         if len(self.clients) > 0:
-            # if client != sender:
-            data = pickle.dumps("matrix", self.matrix)
-            addr.sock.send(data)
+            mattrix = ["matrix", self.matrix]
+            data = pickle.dumps(mattrix)
+            conn.send(data)
             # print(self.matrix)
 
     def update_matrix(self, x, y, color):
@@ -85,14 +88,14 @@ class ClientHandler(Thread, Utils):
                 data = pickle.loads(res)
                 x, y, color = data[1], data[2], data[0]
 
-                Server().matrix[x][y] = color
-                server.update_matrix(x, y, color)
+                self.server.matrix[x][y] = color
+                self.server.update_matrix(x, y, color)
 
             except (ConnectionResetError, ConnectionAbortedError, EOFError):
                 print(f"DISCONNECT: client {self.addr} has disconnected")
                 self.sock.close()
-                Server.remove_client(Server().clients, self)
-                Server.list_all_clients(Server())
+                self.server.remove_client(self.server.clients, self)
+                self.server.list_all_clients()
                 break
 
     def __repr__(self) -> str:

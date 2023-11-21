@@ -1,5 +1,6 @@
 import pickle, sys
 import socket
+from time import sleep
 from threading import Thread, Lock
 from PyQt6 import QtWidgets, QtGui, QtCore
 from PyQt6.QtCore import pyqtSignal, pyqtSlot
@@ -13,7 +14,7 @@ class MyWindow(QMainWindow, QWidget):
     def __init__(
             self,
             sock=socket.socket(socket.AF_INET, socket.SOCK_STREAM),
-            address=("26.222.82.150", 5361),
+            address=("127.0.0.1", 5361),
             BUFFER_SIZE=4096,
             lock=Lock(),
     ):
@@ -69,12 +70,17 @@ class MyWindow(QMainWindow, QWidget):
         self.name = self.sock.getsockname()
         # self.signal.emit(f"Your name is {self.name}\n")
 
-        receive_msg = Thread(target=self.recv_msg, daemon=True)
-        receive_msg.start()
+        # receive_msg = Thread(target=self.recv_msg, daemon=True)
+        # receive_msg.start()
 
         # self.send_data()
 
         self.show()
+
+        sleep(0.2)
+
+        receive_msg = Thread(target=self.recv_msg, daemon=True)
+        receive_msg.start()
 
         # self.stop_call = True
         # receive_msg.join()
@@ -83,21 +89,6 @@ class MyWindow(QMainWindow, QWidget):
     def new_message_from_server(self, text: str):
         self.text_output.append(text)
         self.text_output.append('\n')
-
-    def handler_sumbit(self):
-        # show
-        msg = self.text_input.text()
-        message = {
-            "type": "text",
-            "data": f"{msg}",
-            "optional": "",
-        }
-        self.text_input.clear()
-        #send
-        self.sock.send(pickle.dumps(message))
-        # show on GUI
-        # self.text_output.append(msg)
-        # self.text_output.append('\n')
 
     def handler_btn(self, x: int, y: int):
         if not self.color_picker_locked:
@@ -183,8 +174,8 @@ class MyWindow(QMainWindow, QWidget):
                     # set the style sheet of the corresponding button
                     # to the corresponding color.
                     if res[0] == "matrix":
-                        for x in range(len(res)):
-                            for y in range(len(res[x])):
+                        for x in range(len(res[1])):
+                            for y in range(len(res[1][x])):
                                 if res[1][x][y] is not None:
                                     self.btn_matrix[x][y].setStyleSheet(
                                         "background-color: %s;" % res[1][x][y])
@@ -205,8 +196,27 @@ class MyWindow(QMainWindow, QWidget):
     def keyPressEvent(self, keyEvent):
         # print(keyEvent.key())      # Used for debugging purposes
         if keyEvent.key() == 16777216:  # 'Escape' key pressed
-            sys.exit()
+            self.sock.close()
+            self.close()
+            # sys.exit()
 
+
+'''
+    def handler_sumbit(self):
+        # show
+        msg = self.text_input.text()
+        message = {
+            "type": "text",
+            "data": f"{msg}",
+            "optional": "",
+        }
+        self.text_input.clear()
+        #send
+        self.sock.send(pickle.dumps(message))
+        # show on GUI
+        # self.text_output.append(msg)
+        # self.text_output.append('\n')
+'''
 
 if __name__ == '__main__':
     # client = Client()
